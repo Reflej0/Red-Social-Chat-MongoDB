@@ -12,9 +12,11 @@ db.posteos.find({mensaje:/Hola/});
 db.posteos.find({idUsuario:1});
 
 //Insercion de un comentario(documento embebido) dentro de un documento especifico(por _id) en coleccion posteos.
+//Tratamiento de _id dentro de un documento embebido y fecha.
+//IMPORTANTE: Siempre hay que restarle uno al mes, es decir mes 8, se pone como 7.
 db.posteos.update(
-		{ _id : ObjectId("5b6056accf8e8c17f82a8d90") },
-		{ $push : { Comentarios:  {usuarioId:2, mensaje:"32"}} });
+		{ _id : ObjectId("5b61d673bb0d4d1e5191fe8a") },
+		{ $push : { Comentarios:  {_id: new ObjectId(), usuarioId:2, mensaje:"Comentando...", fechaCreacion: new Date(2018,07,01)}}});
 
 //Actualizacion de un comentario ya existente(documento embebido) dentro de un documento especifico(por _id) en coleccion posteos.
 db.posteos.update(
@@ -26,3 +28,56 @@ db.posteos.update(
 db.posteos.update(
     { Comentarios._id: 1 }, 
     { $set: { "Comentarios.$.mensaje": "Estoy actualizado" } });
+
+//Numero de documentos que cumplen con una determinada condición.
+db.posteos.find({usuarioId : 1}).count();
+
+//Eliminacion de un comentario(documento embebido) dentro de un documento(por _id) en coleccion posteos.
+db.posteos.update(
+		{ _id : ObjectId("5b61d673bb0d4d1e5191fe8a") },
+		{ $unset : { Comentarios:  {_id:ObjectId("idbuscado")}}});
+
+//Numero de comentarios (documento embebido) que contiene un determinado posteo.
+db.posteos.find({_id : ObjectId("5b61d673bb0d4d1e5191fe8a")})[0].Comentarios.length;
+
+//Lo mismo que lo anterior pero utilizando una funcion de agregacion.
+db.posteos.aggregate( 
+    [ 
+        { $match : {'_id': ObjectId("5b61d673bb0d4d1e5191fe8a")}}, 
+        { $unwind : "$Comentarios" }, 
+        { $group : { _id : null, number : { $sum : 1 } } } 
+    ] 
+);
+
+//Obtengo el posteo con la fechaCreacion mas nueva.
+db.posteos.find({}).sort({"fechaCreacion" : -1}).limit(1);
+
+//Obtengo el posteo con la fechaCreacion mas vieja.
+db.posteos.find({}).sort({"fechaCreacion" : +1}).limit(1);
+
+//Posteo con mas comentarios. El $Comentarios debe ser si o si un array.
+db.posteos.aggregate([
+    {$project:{
+        id: "$_id", count: {$size:{"$ifNull":["$Comentarios",[]]} }
+    }},
+    {$group: {
+        _id: null, 
+        max: { $max: "$count" }
+    }}
+]);
+
+//Hashtag mas utilizado.
+db.posteos.aggregate([
+  {"$unwind":"$hashtags"},
+  {"$sortByCount":"$hashtags"},
+  {"$limit":1}
+])
+
+//Busqueda en coleccion posteos, aplicando un filtro por fecha.
+
+db.posteos.find({
+    fechaCreacion: {
+        $gte: ISODate("2018-07-30"),
+        $lt: ISODate("2018-07-31")
+    }
+})
