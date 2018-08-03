@@ -16,11 +16,19 @@ Al 01/08/2018 el funcionamiento consta de una registración/login y un sector de
 
 Actualmente disminuyendo el tiempo de respuesta para obtener las publicaciones se podría asimilar mas a un chat.
 
+# Problemas relacionados
+ En esta sección se encuentran algunos problemas de configuración que pueden surgir bajo algunos entornos.
+ * En Linux, al realizar pecl install mongodb (instalación del cliente mongodb) instala por defecto la última versión la cual no es compatible con las versiones de MongoDB viejas, para solucionar este inconveniente, actualizar el servidor de MongoDB o realizar un pecl install mongodb-1.4.4 (previo pecl uninstall mongodb)
+
 # Extras
  * Se adjunta el archivo querys_example que contienen consultas nativas de MongoDB que se pueden implementar con el esquema dado.  :large_blue_circle:<br />
  * Se adjunta el archivo MongoDB y CodeIgniter instalación, contiene los pasos para instalar MongoDB(cliente/servidor) en Windows y el plugin en CodeIgniter(:x:aunque este no se utilizó) es su lugar se utilizó el plugin de PHP nativo new MongoDB\Driver\Manager<br />
  * Se adjunta el diagrama de clases en formato .vpp (Visual Paradigm).
+	
+# Versión Online
+La versión online se encuentra activa al día 02/08/2018 en
+http://191.234.164.93
  
  # Próximamente
-  * - [ ] Version online.
+  * - [x] Version online.
   * - [ ] Sección de estadísticas (Usuario con mas posteos, Hashtags mas populares, etc).
