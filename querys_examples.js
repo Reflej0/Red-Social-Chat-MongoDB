@@ -81,3 +81,10 @@ db.posteos.find({
         $lt: ISODate("2018-07-31")
     }
 })
+
+//Insercion de un documento con datos binarios(imagen).
+
+db.imagenes.update({'usuarioId' : NumberInt(2)}, 
+            {'$set' : {'usuarioId' : NumberInt(2),
+            "imagen": BinData(0, "reemplazarpordatosbinarios")}}, 
+            {'multi' : false, 'upsert' : true})

@@ -25,7 +25,7 @@ class PosteosModel extends CI_Model
 		$query->insert($posteo);
 		$this->db->executeBulkWrite('reflej0.posteos', $query);
 		//EXAMPLE QUERY.
-		//Consulta de ejemplo en MongoDB crudo.
+		//Consulta de ejemplo en MongoDB nativo.
 		/*db.getCollection("posteos").insert
 		({"usuarioId" : NumberInt(1),
 		"mensaje" : "Hola soy un posteo del usuario con id 1",
@@ -41,7 +41,7 @@ class PosteosModel extends CI_Model
     	$res = $this->db->executeQuery("reflej0.posteos", $query);
     	return $res->toArray();
     	//EXAMPLE QUERY.
-    	//Consulta de ejemplo en MongoDB crudo.
+    	//Consulta de ejemplo en MongoDB nativo.
     	/*db.posteos.find({mensaje:/Hola/});*/
 	}
 
@@ -54,10 +54,11 @@ class PosteosModel extends CI_Model
     	$res = $this->db->executeQuery("reflej0.posteos", $query);
     	return $res->toArray();
     	//EXAMPLE QUERY.
-    	//Consulta de ejemplo en MongoDB crudo.
+    	//Consulta de ejemplo en MongoDB nativo.
     	/*db.posteos.find({usuarioId:1});*/
 	}
-	/*Esta fybcuin recibe un posteo y un comentario que debe relacionarse al posteo.*/
+	
+	/*Esta funcion recibe un posteo y un comentario que debe relacionarse al posteo.*/
 	public function newComentario($posteoId, $usuarioId, $usuarioApodo, $comentario)
 	{
 		$query = new MongoDB\Driver\BulkWrite;
@@ -71,8 +72,7 @@ class PosteosModel extends CI_Model
         } 
         catch(Exception $e) 
         {
-        	print_r($e->getMessage());
-        	exit();
+        	return $e->getMessage();
         }
         //EXAMPLE QUERY.
         /*	PUSH (DOCUMENTO EMBEBIDO)

@@ -1,12 +1,18 @@
-<div id="header">
+<form id="inicio_usuario" action="" method="post" enctype="multipart/form-data">
 <input id="amigo" type="text" name="amigo" placeholder="Tipee el nombre de su amigo">
 <button id="agregar" type="button">Agregar amigo</button><br>
-<textarea id="posteo" rows="4" cols="50" placeholder="Publica un nuevo posteo" maxlength="255">
-</textarea>
-<button id="publicar" type="button">Publicar</button> 
-</div>
+<textarea id="posteo" rows="4" cols="50" placeholder="Publica un nuevo posteo" maxlength="255"/> </textarea>
+<button id="publicar" type="button">Publicar</button>
+<input id="user_image_file" type='file' name="user_image_file" onchange="uploadImage(this, 'user_image');"/>
+<?php if(!empty($imagen)): //Si el usuario tiene una imagen asociada entonces se debe tratar.?>
+<img id="user_image" src="data:jpeg;base64,<?=base64_encode($imagen->getData())?>"/>
+<?php endif; ?>
+<?php if(empty($imagen)): //Si el usuario no tiene una imagen asociada.?>
+<img id="user_image" src="#" alt=""/>
+<?php endif; ?>
 <div id="muro">
 </div>
+</form>
 
 <script>
 //Acciones que se realizan al cargar la página.
@@ -18,11 +24,17 @@ $(document).ready(function() {
     {
     	sendComentario(this.id, $('.'+this.id).val()); //El id del posteo y el mensaje en sí.
     })
+    //
+    $("#user_image").width(100).height(100); // Con esto me aseguro de que si el usuaio tenia una imagen cargada se mantenga la proporcion default establecida en 100x100.
 });
 
 //Al pulsar el boton publicar.
 $("#publicar").click(function() {
-  $.ajax({
+    //Esta es la forma de comprobar que un TEXTAREA esta vacio.
+    if(!$.trim($("posteo").val()))
+        return;
+
+    $.ajax({
         url: "<?php echo base_url(); ?>/index.php/posteos/ajax_newPosteo",
         type: 'POST',
         data: {mensaje: $('#posteo').val()},
@@ -47,6 +59,27 @@ $("#agregar").click(function() {
     });
 });
 
+//Esta funcion realiza el tratamiento de la foto subida por el usuario.
+function uploadImage(inputfile, inputimage)
+{
+    if(!setImageSrc(inputfile, inputimage)) // Esta funcion valida la imagen y la mantiene disponible en una resolucion de 100x100.
+        return;
+    //Manipulacion del archivo subido por el usuario.
+    var file_data = $('#user_image_file').prop('files')[0];
+    var form_data = new FormData();
+    form_data.append('file', file_data);
+    //Llamada de AJAX para el almacenamiento del archivo en MongoDB.
+    $.ajax({
+    url: "<?php echo base_url(); ?>/index.php/imagenes/ajax_newImagePerfil",
+    type: "POST",
+    data: form_data,
+    contentType: false,
+    cache: false,
+    processData:false
+    });
+
+}
+
 //Esta funcion recibe un JSON con los posteos y se encarga de realizar el tratamiento visual de los mismos.
 function tratarPosteos(posteos)
 {
@@ -69,6 +102,7 @@ function getPosteos()
         success: function(posteos)
         {
         	resp = posteos;
+            console.clear(); // Para ocultar las reiteradas llamadas de AJAX.
         }
     })
     return resp;
@@ -111,15 +145,8 @@ function sendComentario(posteoId, comentario)
         dataType: 'json',
         success: function(posteos)
         {
-        	alert("Comentario realizado");
+        	tratarPosteos(); // Al comentar actualizo los posteos y por consiguiente los comentarios.
         }
     })
-}
-
-//Esta funcion adecua el formato de la fecha.
-function adecuarFecha(fecha)
-{
-	var options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-	return new Date(Number(fecha["$date"]["$numberLong"])).toLocaleTimeString("es-AR", options);
 }
 </script>

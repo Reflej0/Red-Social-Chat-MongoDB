@@ -26,9 +26,14 @@ Actualmente disminuyendo el tiempo de respuesta para obtener las publicaciones s
  * Se adjunta el diagrama de clases en formato .vpp (Visual Paradigm).
 	
 # Versión Online
-La versión online se encuentra activa al día 02/08/2018 en
+La versión 0.1a online se encuentra activa al día 12/08/2018 en
 http://191.234.164.93
  
- # Próximamente
-  * - [x] Version online.
-  * - [ ] Sección de estadísticas (Usuario con mas posteos, Hashtags mas populares, etc).
+# Añadido en v0.2a
+   
+ * Los usuarios ahoran pueden tener asociados una imagen de perfil, la misma es almacenada en MongoDB.  
+ * Cambios menores.
+ 
+# Proximamente en v0.3a
+
+Sección de estadísticas y eliminación de comentarios según usuario.

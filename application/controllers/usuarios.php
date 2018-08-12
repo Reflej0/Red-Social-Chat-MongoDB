@@ -9,7 +9,6 @@ class Usuarios extends CI_Controller {
 		$this->load->helper('url');
 		$this->load->view('css'); // Carga de Css para la vista.
 		$this->load->view('js'); // Carga de js para al vista.
-		$this->load->library('session'); // Variables de sesion.
 		$this->load->model('UsuariosModel'); // Carga del modelo.
 		$this->load->model('PosteosModel'); //Carga del modelo.
 		$this->load->config('MongoDB'); // Carga de configuracion de MongoDB.
@@ -33,7 +32,7 @@ class Usuarios extends CI_Controller {
 					$this->load->view('usuarios/login', ['excepcion' => "Contraseña incorrecta"]);
 				elseif($resp == 1)
 				{
-					$_SESSION['apodo'] = $apodo;
+					$this->session->set_userdata('apodo', $apodo);
 					redirect('/usuarios/inicio');
 				}
 			}
@@ -66,15 +65,23 @@ class Usuarios extends CI_Controller {
 		$this->load->helper('url');
 		$this->load->view('css'); // Carga de Css para la vista.
 		$this->load->view('js'); // Carga de js para al vista.
-		$this->load->library('session'); // Variables de sesion.
 		$this->load->model('UsuariosModel'); // Carga del modelo.
 		$this->load->model('PosteosModel'); //Carga del modelo.
+		$this->load->model('ImagenesModel'); //Carga del modelo.
 		$this->load->config('MongoDB'); // Carga de configuracion de MongoDB.
 		//Si el usuario intenta acceder sin estar logeado.
 		if(!$this->session->has_userdata('apodo'))
 				redirect('/usuarios/index');
-		$idUsuario = $this->UsuariosModel->getId($_SESSION['apodo']);
-		$this->load->view('usuarios/inicio', $idUsuario);
+		//Obtengo el idUsuario en base a su apodo.
+		$idUsuario = $this->UsuariosModel->getId($this->session->has_userdata('apodo'));
+		//Busco la imagen del usuario.
+		$imagen = $this->ImagenesModel->searchImagenbyUsuarioId($idUsuario);
+		//Compruebo si realmente tiene una imagen.
+		if(!empty($imagen))
+			$imagen = $imagen[0]->imagen;
+		//Paso los parametros a la vista.
+		$data = ["idUsuario"=> $idUsuario, "imagen" => $imagen];
+		$this->load->view('usuarios/inicio', $data);
 	}
 
 	/*Esta funcion recibe una llamada de AJAX, y si el apodo existe, realiza una nueva relacion en la seguidor .*/
@@ -96,7 +103,7 @@ class Usuarios extends CI_Controller {
 		if($idUsuarioaSeguir)
 		{
 			//Se realiza la asoacion.
-			$this->UsuariosModel->addSeguidor($this->UsuariosModel->getId($_SESSION['apodo']), $idUsuarioaSeguir);
+			$this->UsuariosModel->addSeguidor($this->UsuariosModel->getId($this->session->has_userdata('apodo')), $idUsuarioaSeguir);
 			echo 1; // Respuesta para la vista.
 		}
 		else
